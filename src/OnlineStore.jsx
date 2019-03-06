@@ -4,7 +4,7 @@ class OnlineStore extends React.Component {
   render() {
     return (
       <div>
-        <h2>Tienda en línea</h2>
+        <h2>Tienda en linea</h2>
       </div>
     );
   }
