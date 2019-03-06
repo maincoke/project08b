@@ -1,13 +1,10 @@
 const path = require('path');
 
 module.exports = {
-    entry: {
-        path: path.resolve(__dirname, 'src'),
-        filename: 'main.js'
-    },
+    entry: './src/main.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        file: 'index.js'
+        filename: 'index.js'
     },
     devServer: {
         hot: true,
@@ -20,7 +17,9 @@ module.exports = {
             exclude: /node_modules/,
             use: {
                 loader: 'babel-loader',
-                options: ['@babel/preset-env', '@babel/preset-react']
+                options: {
+                    presets: ['@babel/preset-env', '@babel/preset-react']
+                }
             }
         }]
     }

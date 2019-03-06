@@ -2,20 +2,13 @@
     "name": "project08b",
     "version": "0.0.1",
     "description": "Tienda en línea",
+    "private": true,
     "main": "index.js",
     "scripts": {
         "start": "webpack-dev-server --hot"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/maincoke/project08b.git"
-    },
     "author": "Marlon Malagon",
     "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/maincoke/project08b/issues"
-    },
-    "homepage": "https://github.com/maincoke/project08b#readme",
     "devDependencies": {
         "@babel/core": "^7.3.4",
         "@babel/preset-env": "^7.3.4",
