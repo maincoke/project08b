@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
-import OnlineStore from './OnlineStore.jsx';
+import OnlineStore from './components/OnlineStore.jsx';
 
 ReactDOM.render(<OnlineStore />, document.getElementById('online-store'));
