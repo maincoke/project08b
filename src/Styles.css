@@ -1,0 +1,6 @@
+/* * ****************** Estilos globales de la Tienda Online *************** *\\ */
+
+.bckgr-login {
+  background-image: linear-gradient(#00000070, #00000070), url("./assets/login-fondo.jpg");
+  background-size: cover;
+}
