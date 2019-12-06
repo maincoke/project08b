@@ -17,9 +17,9 @@ class OnlineStore extends React.Component {
       <Router>
         <div>
           <ul>
-            <li><Link to="/inicio">Iniciar Sesión</Link></li>
+            {/* <li><Link to="/inicio">Iniciar Sesión</Link></li> 
             <li><Link to="/catalogo">Catalogo</Link></li>
-            <li><Link to="/salir">Salir</Link></li>
+            <li><Link to="/salir">Salir</Link></li>*/ }
           </ul>
           <Switch>
             <Route path="/inicio" component={ Login } />

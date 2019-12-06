@@ -1,6 +1,33 @@
 /* * ****************** Estilos globales de la Tienda Online *************** *\\ */
 
+html, body {
+  height: 100%;
+  font-family: 'Josefin Sans', sans-serif !important;
+}
+
+body { 
+  margin: 0;
+  /* max-width: 1440px !important;*/
+}
+
 .bckgr-login {
   background-image: linear-gradient(#00000070, #00000070), url("./assets/login-fondo.jpg");
   background-size: cover;
+}
+
+.bckgr-main {
+  background-image: url('./assets/main-fondo.jpg');
+  background-size: cover;
+}
+
+.login-padding {
+  padding-top: 30vh !important;
+}
+
+.login-box {
+  background-color: #282828d2;
+}
+
+.login-labels {
+  font-size: large !important;
 }
