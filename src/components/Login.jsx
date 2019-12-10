@@ -1,19 +1,30 @@
 import React from 'react';
-import { Container, Row, Col, Form, InputGroup, FormLabel, Button, FormControl, FormGroup, Modal } from 'react-bootstrap';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Switch, Route, Link, Redirect, useParams, useRouteMatch } from 'react-router-dom';
+import * as Request from 'superagent';
+import { Container, Row, Col, Form, InputGroup, FormLabel, Button, Modal, ModalDialog, ModalDialogProps } from 'react-bootstrap';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import Signup from './Signup.jsx';
 
 class Login extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { validForm: false }
+    this.state = { showModal: false }
+    this.openSignUp = this.openSignUp.bind(this);
+    this.closeModal = this.closeModal.bind(this);
   }
 
-  componentWillMount() { }
+  componentWillMount() {
+    Request.post('http://' + window.location.hostname + ':3000/shopping/catalog').type('application/json')
+                .responseType('json').then(doc => {
+                  if(!doc.error) { console.log(doc.body) }
+                }).catch(err => {
+                  console.error(err);
+                });
+  }
 
-  //  
+  //
   render() {
     const schemaForm = Yup.object().shape({
       usermail: Yup.string().required('Debe introducir el correo electrónico registrado en la cuenta!')
@@ -29,17 +40,17 @@ class Login extends React.Component {
       <Container>
         <Row className="justify-content-center login-padding">
           <Col xs="8" sm="6" md="5" lg="4" xl="3">
-            <div className="border border-bottom-0 border-white rounded-top login-box">
-              <h2 className="text-white text-center mt-2 mb-0">Inicio de Sesión</h2>
+            <div className="border-bottom-0 rounded-top login-box">
+              <h2 className="text-white text-center mt-2 mb-0 pt-2">Inicio de Sesión</h2>
             </div>
           </Col>
         </Row>
         <Row className="justify-content-center">
           <Col xs="8" sm="8" md="7" lg="6" xl="5">
-            <div className="border border-white rounded-lg m-0 p-0 login-box">
-                <Form noValidate autoComplete="off" onSubmit={handleSubmit}>{/* validated={this.state.validForm}  */}
+            <div className="rounded-lg m-0 p-0 login-box">
+                <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
                   <Form.Row>
-                    <Form.Group as={Col} controlId="emailusr" className="ml-2 mr-2 mb-0">
+                    <Form.Group as={Col} controlId="useremail" className="ml-2 mr-2 mb-0">
                       <FormLabel className="text-white pl-4 pt-2 login-labels" size="lg">Correo Eletcrónico</FormLabel>
                       <InputGroup>
                         <InputGroup.Prepend id="email_prefix" className="pt-1 pr-2">
@@ -52,7 +63,7 @@ class Login extends React.Component {
                     </Form.Group>
                   </Form.Row>
                   <Form.Row>
-                    <Form.Group as={Col} controlId="pwordusr" className="ml-2 mr-2">
+                    <Form.Group as={Col} controlId="userpword" className="ml-2 mr-2">
                       <FormLabel className="text-white pl-4 pt-2 login-labels">Contraseña</FormLabel>
                       <InputGroup>
                         <InputGroup.Prepend id="pword_prefix" className="pt-1 pr-2 font">
@@ -66,7 +77,8 @@ class Login extends React.Component {
                   </Form.Row>
                   <Form.Row className="justify-content-center">
                     <Col xs="4" sm="6">
-                      <Button type="submit" variant="outline-primary" className="login-labels" block disabled={errors.usermail || errors.userpass}>Ingresar</Button>
+                      <Button type="submit" variant="outline-primary" className="login-labels" block
+                              disabled={errors.usermail || errors.userpass}>Ingresar</Button>
                     </Col>
                     <p className="text-white mt-2">¿No tienes cuenta? Registrate <a href="#" onClick={this.openSignUp}>aquí</a></p>
                   </Form.Row>
@@ -74,18 +86,23 @@ class Login extends React.Component {
             </div>
           </Col>
         </Row>
+      <Modal dialogAs={Signup} doneSignup={this.closeModal.bind(this)} animation={false} size="lg" scrollable keyboard
+              show={this.state.showModal} onHide={this.closeModal} />
       </Container>
       )}</Formik>
     );
   }
 
   openSignUp() {
-    alert('Registrando....');
+    console.log('Registrando....');
+    this.setState({ showModal: true });
   }
 
   signInUser() {
     alert('Ingresando....');
   }
+
+  closeModal() { this.setState({ showModal: false }); }
 }
 
 export default Login;
