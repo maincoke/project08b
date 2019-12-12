@@ -1,15 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Request } from '../services/requestdata';
 import { Container, Row, Col, Form, InputGroup, FormLabel, Button, ModalTitle, ModalBody, ModalDialog } from 'react-bootstrap';
 import ModalHeader from 'react-bootstrap/ModalHeader';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
+import { User } from '../modeldata/User';
 
 class Signup extends React.Component {
   constructor(props) {
     super(props);
     this.userSignUp = this.userSignUp.bind(this);
     this.doneSignup = this.props.doneSignup.bind(this);
+    this.noticeMsg = this.props.noticeToast.bind(this);
   }
 
   componentWillMount() { }
@@ -112,14 +115,21 @@ class Signup extends React.Component {
     );
   }
 
-  userSignUp() {
-    alert('Registrando....');
+  userSignUp(values, fmkbag) {
+    const userData = new User, req = new Request;
+    userData.namesusr = values.username;
+    userData.credsusr.emailusr = values.usermail;
+    userData.credsusr.pwordusr = values.passconf;
+    req.signupUser(userData).then(res => {
+      if (res.error || res.body.msgerr) {
+        this.noticeMsg(true, res.body.msgerr);
+        throw res.error
+      } else { this.noticeMsg(false, res.body.msgscs); }
+    }).catch(error => {
+      if (error) console.log(error)
+    });
     this.doneSignup();
   } 
-
-  signInUser() {
-    alert('Ingresando....');
-  }
 }
 
 export default Signup;

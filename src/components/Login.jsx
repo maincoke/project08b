@@ -1,30 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Switch, Route, Link, Redirect, useParams, useRouteMatch } from 'react-router-dom';
-import * as Request from 'superagent';
-import { Container, Row, Col, Form, InputGroup, FormLabel, Button, Modal, ModalDialog, ModalDialogProps } from 'react-bootstrap';
+import { useHistory } from 'react-router-dom';
+import { Request } from '../services/requestdata.js';
+import { Container, Row, Col, Form, InputGroup, FormLabel, Button, Modal, Toast, ToastBody } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import Signup from './Signup.jsx';
+import { Creds } from '../modeldata/Creds.js';
 
 class Login extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { showModal: false }
+    this.state = { showModal: false, showNotice: false, typeMsgInfo: 'bg-success', msgInfo: '' };
     this.openSignUp = this.openSignUp.bind(this);
     this.closeModal = this.closeModal.bind(this);
+    this.notifyMsg = this.notifyMsg.bind(this);
+    this.signInUser = this.signInUser.bind(this);
+    //this.navigate = useHistory;
   }
 
-  componentWillMount() {
-    Request.post('http://' + window.location.hostname + ':3000/shopping/catalog').type('application/json')
-                .responseType('json').then(doc => {
-                  if(!doc.error) { console.log(doc.body) }
-                }).catch(err => {
-                  console.error(err);
-                });
-  }
+  componentWillMount() { }
 
-  //
   render() {
     const schemaForm = Yup.object().shape({
       usermail: Yup.string().required('Debe introducir el correo electrónico registrado en la cuenta!')
@@ -35,8 +31,9 @@ class Login extends React.Component {
     });
 
     return (
-      <Formik initialValues={{ usermail: '', userpass: ''}} onSubmit={this.signInUser} validationSchema={schemaForm}>{
-      ({ handleSubmit, handleChange, handleBlur, values, isValid, touched, errors, isSubmitting, isValidating }) => (
+      <div>
+      <Formik initialValues={{ usermail: '', userpass: ''}} validationSchema={schemaForm} onSubmit={this.signInUser}>{
+      ({ handleSubmit, handleChange, handleBlur, values, isValid, touched, errors, isSubmitting, handleReset }) => (
       <Container>
         <Row className="justify-content-center login-padding">
           <Col xs="8" sm="6" md="5" lg="4" xl="3">
@@ -56,7 +53,7 @@ class Login extends React.Component {
                         <InputGroup.Prepend id="email_prefix" className="pt-1 pr-2">
                           <i className="material-icons text-white">mail_outline</i>
                         </InputGroup.Prepend>
-                        <Form.Control type="email" size="sm" className="rounded" aria-describedby="email_prefix" name="usermail" defaultValue={values.usermail}
+                        <Form.Control type="email" size="sm" className="rounded" aria-describedby="email_prefix" name="usermail" value={values.usermail}
                             onChange={handleChange} onBlur={handleBlur} isValid={touched.usermail && !errors.usermail} isInvalid={errors.usermail} />
                         <Form.Control.Feedback type="invalid" className="ml-5">{errors.usermail}</Form.Control.Feedback>
                       </InputGroup>
@@ -69,7 +66,7 @@ class Login extends React.Component {
                         <InputGroup.Prepend id="pword_prefix" className="pt-1 pr-2 font">
                           <i className="material-icons text-white">vpn_key</i>
                         </InputGroup.Prepend>
-                        <Form.Control type="password" size="sm" className="rounded" aria-describedby="pword_prefix" name="userpass" defaultValue={values.userpass}
+                        <Form.Control type="password" size="sm" className="rounded" aria-describedby="pword_prefix" name="userpass" value={values.userpass}
                             onChange={handleChange} onBlur={handleBlur} isValid={!!errors.userpass && values.userpass.lenght > 7} isInvalid={errors.userpass} />
                         <Form.Control.Feedback type="invalid" className="ml-5">{errors.userpass}</Form.Control.Feedback>
                       </InputGroup>
@@ -87,22 +84,47 @@ class Login extends React.Component {
           </Col>
         </Row>
       <Modal dialogAs={Signup} doneSignup={this.closeModal.bind(this)} animation={false} size="lg" scrollable keyboard
-              show={this.state.showModal} onHide={this.closeModal} />
+              show={this.state.showModal} onHide={this.closeModal} noticeToast={this.notifyMsg.bind(this)} />
       </Container>
       )}</Formik>
+      <Row className="fixed-bottom mw-100 justify-content-center mh-2">
+        <Toast autohide delay={2500} className={"text-center " + this.state.typeMsgInfo}
+                show={this.state.showNotice} onClose={() => this.setState({ showNotice: false})}>
+          <ToastBody className="text-light h6">{this.state.msgInfo}</ToastBody>
+        </Toast>
+      </Row>
+      </div>
     );
   }
 
-  openSignUp() {
-    console.log('Registrando....');
-    this.setState({ showModal: true });
-  }
-
-  signInUser() {
-    alert('Ingresando....');
-  }
+  openSignUp() { this.setState({ showModal: true }); }
 
   closeModal() { this.setState({ showModal: false }); }
+
+  notifyMsg(err, msg) {
+    err ?  this.setState({ typeMsgInfo: 'bg-danger', msgInfo: msg }) : this.setState({ msgInfo: msg });
+    this.setState({ showNotice: true });
+  }
+
+  signInUser(values, fmkbag) {
+    const userCreds = new Creds, req = new Request; let resp;
+    userCreds.emailusr = values.usermail;
+    userCreds.pwordusr = values.userpass;
+    fmkbag.resetForm({});
+    req.loginCheck(userCreds).then(res => {
+      resp = res.body;
+      if (res.error || !res.body.access) throw res.error
+      sessionStorage.setItem('cellarsid', resp.sid);
+    }).catch(error => { if (error) console.error(error);
+    }).finally(() => {
+      if (!resp.access) {
+        this.notifyMsg(true, resp.msg);
+      } else {
+        this.notifyMsg(false, 'Usuario autenticado!!')
+        this.navigate.push("/catalogo");
+      }
+    });
+  }
 }
 
 export default Login;

@@ -59,8 +59,8 @@ Router.post('/', function(req, res) {
 
 // *** Verificación de Login, acceso y configuración de Sesion del Usuario *** //
 Router.post('/login', function(req, res) {
-  let username = req.body.email,
-      userpass = req.body.pword;
+  let username = req.body.emailusr,
+      userpass = req.body.pwordusr;
   User.findOne({ emailusr: username }).exec().then(doc => {
     bcrypt.compare(userpass, doc.pwordusr).then(validPword => {
       let result;
@@ -98,25 +98,25 @@ Router.post('/logout', function(req, res) {
 
 // *** Inclusión de datos básicos del Usuario *** //
 Router.post('/newuser', function(req, res) {
-  let username = req.body.credsusr.email;
+  let username = req.body.credsusr.emailusr;
   let findmail = User.where({ emailusr: username });
   findmail.findOne((error, doc) => {
     if (error || !doc) {
-      let pworduser = req.body.credsusr.pword;
+      let pworduser = req.body.credsusr.pwordusr;
       bcrypt.hash(pworduser, BCRYPT_SALT_ROUNDS).then(function(pwordHashed) {
         let newuser = new User({
           nameuser: req.body.namesusr,
-          emailusr: req.body.credsusr.email,
+          emailusr: req.body.credsusr.emailusr,
           pwordusr: pwordHashed,
           shopcar: [{ order: newuuid1(), paidod: false }]
         });
         newuser.save().then(doc => {
           res.send({ msgscs: "Usuario registrado con éxito!!" });
-        }).catch(function(error) {
+        }).catch(error => {
           res.send({ msgerr: "Hubo un error en el registro de usuario!!" });
           console.error('===>>> Error en el registro de usuario: ');
         });
-      }).catch(function(error) {
+      }).catch(error => {
           res.send({ msgerr: "Error: La contraseña no se logró generar con éxito!!" });
       });
     } else {

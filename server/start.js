@@ -37,7 +37,7 @@ const userSession = session({
   resave: false,
   rolling: true,
   saveUninitialized: false,
-  cookie: { maxAge: 1800000 },
+  cookie: { maxAge: 180000 }, // ***** Recordar agregar cero para los 30 min //
   store: new mongoSession({ mongooseConnection: db })
 });
 shop.use(userSession);
