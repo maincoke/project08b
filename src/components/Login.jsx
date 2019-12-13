@@ -1,25 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { useHistory } from 'react-router-dom';
-import { Request } from '../services/requestdata.js';
+import { BrowserRouter as Router, Switch, Route, Link, Redirect, useHistory } from 'react-router-dom';
 import { Container, Row, Col, Form, InputGroup, FormLabel, Button, Modal, Toast, ToastBody } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { Request } from '../services/requestdata.js';
+import { ControlSid as controlSid } from '../services/managesid.js';
+import Catalog from './Catalog.jsx';
 import Signup from './Signup.jsx';
 import { Creds } from '../modeldata/Creds.js';
 
 class Login extends React.Component {
   constructor(props) {
     super(props);
+    this.controlSid = new controlSid;
     this.state = { showModal: false, showNotice: false, typeMsgInfo: 'bg-success', msgInfo: '' };
+    this.checkSession = this.checkSession.bind(this);
     this.openSignUp = this.openSignUp.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.notifyMsg = this.notifyMsg.bind(this);
     this.signInUser = this.signInUser.bind(this);
-    //this.navigate = useHistory;
   }
 
-  componentWillMount() { }
+  componentDidMount() {
+    document.getElementsByTagName("body").item(0).classList = 'bckgr-login';
+  }
 
   render() {
     const schemaForm = Yup.object().shape({
@@ -30,7 +35,7 @@ class Login extends React.Component {
                 .min(8, 'La contraseña debe ser mayor a 8 caracteres!').max(50, 'Contraseña muy larga e inválida'),
     });
 
-    return (
+    return this.controlSid.getSid() !== null ? <Redirect to="/catalogo" /> : (
       <div>
       <Formik initialValues={{ usermail: '', userpass: ''}} validationSchema={schemaForm} onSubmit={this.signInUser}>{
       ({ handleSubmit, handleChange, handleBlur, values, isValid, touched, errors, isSubmitting, handleReset }) => (
@@ -97,6 +102,10 @@ class Login extends React.Component {
     );
   }
 
+  checkSession() {
+
+  }
+
   openSignUp() { this.setState({ showModal: true }); }
 
   closeModal() { this.setState({ showModal: false }); }
@@ -114,14 +123,13 @@ class Login extends React.Component {
     req.loginCheck(userCreds).then(res => {
       resp = res.body;
       if (res.error || !res.body.access) throw res.error
-      sessionStorage.setItem('cellarsid', resp.sid);
+      this.controlSid.buildSid(resp.sid);
     }).catch(error => { if (error) console.error(error);
     }).finally(() => {
       if (!resp.access) {
         this.notifyMsg(true, resp.msg);
       } else {
-        this.notifyMsg(false, 'Usuario autenticado!!')
-        this.navigate.push("/catalogo");
+        this.notifyMsg(false, 'Usuario autenticado!!');
       }
     });
   }

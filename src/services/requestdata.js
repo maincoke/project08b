@@ -7,6 +7,8 @@ export class Request {
   constructor() {
     this.urlData = 'http://' + window.location.hostname + ':3000/shopping';
     this.loginCheck = this.loginCheck.bind(this);
+    this.logoutUser = this.logoutUser.bind(this);
+    this.signupUser = this.signupUser.bind(this);
   }
 
   loginCheck(credsUser) {
@@ -16,7 +18,7 @@ export class Request {
 
   logoutUser(userSid) {
     const sid = JSON.stringify({ sid: userSid });
-    return Req.post(this.urlData + 'logout').type('application/json').responseType('json').send(sid);
+    return Req.post(this.urlData + '/logout').type('application/json').responseType('json').send(sid);
   }
 
   signupUser(dataUser) { // Ejecuta la solicitud de Registro del Usuario en la Tienda Online./
@@ -24,5 +26,3 @@ export class Request {
     return Req.post(this.urlData + '/newuser').type('application/json').responseType('json').send(userData);
   }
 }
-
-// export default Request;
