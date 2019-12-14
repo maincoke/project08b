@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { hot, setConfig } from 'react-hot-loader';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Switch, Route, Link, Redirect, useHistory } from 'react-router-dom';
-import { Request } from '../services/requestdata.js';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import { ControlSid as controlSid } from '../services/managesid.js';
 import Login from './Login.jsx';
 import Catalog from './Catalog.jsx';

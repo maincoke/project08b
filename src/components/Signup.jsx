@@ -5,6 +5,7 @@ import { Container, Row, Col, Form, InputGroup, FormLabel, Button, ModalTitle, M
 import ModalHeader from 'react-bootstrap/ModalHeader';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
+import Notifyer from './Notifyer.jsx';
 import { User } from '../modeldata/User';
 
 class Signup extends React.Component {
@@ -122,9 +123,9 @@ class Signup extends React.Component {
     userData.credsusr.pwordusr = values.passconf;
     req.signupUser(userData).then(res => {
       if (res.error || res.body.msgerr) {
-        this.noticeMsg(true, res.body.msgerr);
+        this.noticeMsg(res.body.msgerr, 'bg-danger', 3000, false);
         throw res.error
-      } else { this.noticeMsg(false, res.body.msgscs); }
+      } else { this.noticeMsg(res.body.msgscs, 'bg-success', 2000, false); }
     }).catch(error => {
       if (error) console.log(error)
     });

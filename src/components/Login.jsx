@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Switch, Route, Link, Redirect, useHistory } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { Container, Row, Col, Form, InputGroup, FormLabel, Button, Modal, Toast, ToastBody } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Request } from '../services/requestdata.js';
 import { ControlSid as controlSid } from '../services/managesid.js';
-import Catalog from './Catalog.jsx';
+import Notifyer from './Notifyer.jsx';
 import Signup from './Signup.jsx';
 import { Creds } from '../modeldata/Creds.js';
 
@@ -14,8 +14,7 @@ class Login extends React.Component {
   constructor(props) {
     super(props);
     this.controlSid = new controlSid;
-    this.state = { showModal: false, showNotice: false, typeMsgInfo: 'bg-success', msgInfo: '' };
-    this.checkSession = this.checkSession.bind(this);
+    this.state = { showModal: false, showNotice: false, typeMsgInfo: '', msgInfo: '' };
     this.openSignUp = this.openSignUp.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.notifyMsg = this.notifyMsg.bind(this);
@@ -36,7 +35,7 @@ class Login extends React.Component {
     });
 
     return this.controlSid.getSid() !== null ? <Redirect to="/catalogo" /> : (
-      <div>
+      <div id="init-login">
       <Formik initialValues={{ usermail: '', userpass: ''}} validationSchema={schemaForm} onSubmit={this.signInUser}>{
       ({ handleSubmit, handleChange, handleBlur, values, isValid, touched, errors, isSubmitting, handleReset }) => (
       <Container>
@@ -92,27 +91,21 @@ class Login extends React.Component {
               show={this.state.showModal} onHide={this.closeModal} noticeToast={this.notifyMsg.bind(this)} />
       </Container>
       )}</Formik>
-      <Row className="fixed-bottom mw-100 justify-content-center mh-2">
-        <Toast autohide delay={2500} className={"text-center " + this.state.typeMsgInfo}
-                show={this.state.showNotice} onClose={() => this.setState({ showNotice: false})}>
-          <ToastBody className="text-light h6">{this.state.msgInfo}</ToastBody>
-        </Toast>
-      </Row>
+      <div id="notify"></div>
       </div>
     );
-  }
-
-  checkSession() {
-
   }
 
   openSignUp() { this.setState({ showModal: true }); }
 
   closeModal() { this.setState({ showModal: false }); }
 
-  notifyMsg(err, msg) {
-    err ?  this.setState({ typeMsgInfo: 'bg-danger', msgInfo: msg }) : this.setState({ msgInfo: msg });
-    this.setState({ showNotice: true });
+  notifyMsg(msg, style, secs, acc) {
+    ReactDOM.render(<Notifyer message={msg} msgtype={style} duration={secs} />, document.getElementById("notify"));
+    setTimeout(() => {
+      if (acc) { history.go('/catalogo'); }
+      ReactDOM.unmountComponentAtNode(document.getElementById("notify"));
+    }, secs);
   }
 
   signInUser(values, fmkbag) {
@@ -127,9 +120,9 @@ class Login extends React.Component {
     }).catch(error => { if (error) console.error(error);
     }).finally(() => {
       if (!resp.access) {
-        this.notifyMsg(true, resp.msg);
+        this.notifyMsg(resp.msg, 'bg-danger', 2500, resp.access);
       } else {
-        this.notifyMsg(false, 'Usuario autenticado!!');
+        this.notifyMsg('Usuario autenticado!!', 'bg-success', 1000, resp.access);
       }
     });
   }
