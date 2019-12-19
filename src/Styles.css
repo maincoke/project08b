@@ -31,3 +31,14 @@ body {
 .login-labels {
   font-size: large !important;
 }
+
+.qtt-width {
+  width: 50px !important;
+}
+
+.img-prod {
+  width: auto;
+  height: auto;
+  max-width: 300px;
+  max-height: 200px;
+}

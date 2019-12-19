@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Redirect } from 'react-router-dom';
-import { Container, Row, Col, Form, InputGroup, FormLabel, Button, Modal, Toast, ToastBody } from 'react-bootstrap';
+import { Container, Row, Col, Form, InputGroup, FormLabel, Button, Modal } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Request } from '../services/requestdata.js';
@@ -87,8 +87,8 @@ class Login extends React.Component {
             </div>
           </Col>
         </Row>
-      <Modal dialogAs={Signup} doneSignup={this.closeModal.bind(this)} animation={false} size="lg" scrollable keyboard
-              show={this.state.showModal} onHide={this.closeModal} noticeToast={this.notifyMsg.bind(this)} />
+      <Modal dialogAs={Signup} animation={false} size="lg" scrollable keyboard show={this.state.showModal} onHide={this.closeModal} 
+              doneSignup={this.closeModal.bind(this)} noticeToast={this.notifyMsg.bind(this)} />
       </Container>
       )}</Formik>
       <div id="notify"></div>
@@ -96,9 +96,9 @@ class Login extends React.Component {
     );
   }
 
-  openSignUp() { this.setState({ showModal: true }); }
+  openSignUp() { this.setState({ showModal: true}); }
 
-  closeModal() { this.setState({ showModal: false }); }
+  closeModal() { this.setState({ showModal: false}); }
 
   notifyMsg(msg, style, secs, acc) {
     ReactDOM.render(<Notifyer message={msg} msgtype={style} duration={secs} />, document.getElementById("notify"));

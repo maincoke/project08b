@@ -1,11 +1,9 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Request } from '../services/requestdata';
 import { Container, Row, Col, Form, InputGroup, FormLabel, Button, ModalTitle, ModalBody, ModalDialog } from 'react-bootstrap';
 import ModalHeader from 'react-bootstrap/ModalHeader';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-import Notifyer from './Notifyer.jsx';
 import { User } from '../modeldata/User';
 
 class Signup extends React.Component {
@@ -16,9 +14,6 @@ class Signup extends React.Component {
     this.noticeMsg = this.props.noticeToast.bind(this);
   }
 
-  componentWillMount() { }
-
-  //
   render() {
     const schemaData = Yup.object().shape({
       username: Yup.string().required('Ingrese su nombre completo para el registro de la cuenta!')

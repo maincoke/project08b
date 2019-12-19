@@ -19,10 +19,10 @@ class OnlineStore extends React.Component {
     return (
       <Router>
           <Switch>
-            <Route exact path="/">{isLoggedIn ? <Redirect to="/catalogo"/> : <Redirect to="/inicio"/> }</Route>
-            <Route path="/inicio" sensitive ><Login /></Route>
-            <Route path="/catalogo" sensitive ><Catalog /></Route>
-            <Redirect from="/*" to="/" />
+            <Route exact path="/">{isLoggedIn ? <Redirect exact to="/catalogo"/> : <Redirect exact to="/inicio"/> }</Route>
+            <Route exact path="/inicio" sensitive ><Login /></Route>
+            <Route exact path="/catalogo" sensitive ><Catalog /></Route>
+            <Redirect exact from="/*" to="/" />
           </Switch>
       </Router>
     );

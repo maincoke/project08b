@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Switch, Route, Link, Redirect, useParams, useRouteMatch } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import { Request } from '../services/requestdata.js';
 import { ControlSid as controlSid } from '../services/managesid.js';
+import Topbar from './Topbar.jsx';
+import { Products, ViewMoreProd } from './Products.jsx';
+import Shopcar from './Shopcar.jsx';
+import Purchases from './Purchases.jsx';
 
 
 class Catalog extends React.Component {
@@ -19,17 +22,20 @@ class Catalog extends React.Component {
   render() {
     return this.controlSid.getSid() !== null ? (
       <div>
-      <div className="col-12 offset-3 text-info">
-        <h1>Catalogo de Productos</h1>
-      </div>
-      <div className="fixed-bottom">
         <Router>
-          <Link to="/salir">Salir</Link>
+          <Topbar url={location.pathname} />
           <Switch>
-            <Route path="/salir" sensitive render={this.logout} />
+            <Route exact path={location.pathname} sensitive><Redirect exact to={location.pathname + "/productos"} /></Route>
+            <Route exact path={location.pathname + "/productos"} sensitive><Products url={location.pathname} /></Route>
+            <Route exact path={location.pathname + "/producto/aguacate"} sensitive><ViewMoreProd /></Route>
+            <Route exact path={location.pathname + "/carrito"} sensitive><Shopcar /></Route>
+            <Route exact path={location.pathname + "/compras"} sensitive><Purchases /></Route>
+            <Route exact path="/salir" sensitive render={this.logout} />
+            <Redirect exact from={location.pathname + "/*"} to={location.pathname + "/productos"} />
+            <Redirect exact from={location.pathname + "/producto/*"} to={location.pathname + "/productos"} />
           </Switch>
         </Router>
-      </div>
+        <div id="notify"></div>
       </div>
     ) :  <Redirect to="/inicio" /> ;
   }
@@ -41,6 +47,7 @@ class Catalog extends React.Component {
       req.logoutUser(sid).then(res => {
         if (res.error) throw res.error;
         routeProps.history.go('/inicio');
+        this.render();
       }).catch(error => { if (error) console.error(error); });
     }
   }
