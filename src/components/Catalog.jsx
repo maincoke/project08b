@@ -1,43 +1,98 @@
-import React, { useState } from 'react';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import { Request } from '../services/requestdata.js';
 import { ControlSid as controlSid } from '../services/managesid.js';
+import { ContextProd, selProd } from '../services/contextProd.js';
+import Notifyer from './Notifyer.jsx';
 import Topbar from './Topbar.jsx';
 import { Products, ViewMoreProd } from './Products.jsx';
 import Shopcar from './Shopcar.jsx';
 import Purchases from './Purchases.jsx';
 
-
 class Catalog extends React.Component {
   constructor(props) {
     super(props);
     this.controlSid = new controlSid;
+    this.state = { products: new Array, prodSel: new selProd };
+    this.allProds = new Array;
+    this.gettingProds = this.gettingProds.bind(this);
+    this.importImgs = this.importImgs.bind(this);
+    this.bindImgWithSrc = this.bindImgWithSrc.bind(this);
     this.logout = this.logout.bind(this);
   }
 
-  componentDidMount() {
-    document.getElementsByTagName("body").item(0).classList = 'bckgr-main';
-  }
-
   render() {
+    const src = this.importImgs(require.context('../assets/', false, /\.(png|jpe?g|svg)$/));
+    const srcImg = this.bindImgWithSrc(src);
+    const srcProd = this.allProds.map((item, idx) => { return (item.image).substr(10); });
     return this.controlSid.getSid() !== null ? (
+      <ContextProd.Provider value={this.state.prodSel}>
       <div>
         <Router>
-          <Topbar url={location.pathname} />
+          <Topbar />
           <Switch>
-            <Route exact path={location.pathname} sensitive><Redirect exact to={location.pathname + "/productos"} /></Route>
-            <Route exact path={location.pathname + "/productos"} sensitive><Products url={location.pathname} /></Route>
-            <Route exact path={location.pathname + "/producto/aguacate"} sensitive><ViewMoreProd /></Route>
-            <Route exact path={location.pathname + "/carrito"} sensitive><Shopcar /></Route>
-            <Route exact path={location.pathname + "/compras"} sensitive><Purchases /></Route>
-            <Route exact path="/salir" sensitive render={this.logout} />
-            <Redirect exact from={location.pathname + "/*"} to={location.pathname + "/productos"} />
-            <Redirect exact from={location.pathname + "/producto/*"} to={location.pathname + "/productos"} />
+              <Route exact path="/catalogo" sensitive><Redirect exact to="/catalogo/productos" /></Route>
+              <Route exact path="/catalogo/carrito" sensitive><Shopcar packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
+              <Route exact path="/catalogo/compras" sensitive><Purchases packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
+              {/*<Route exact path="/catalogo/producto/*"><Redirect to="/catalogo/productos" /></Route>*/}
+              <Route path="/catalogo/producto/:id" children={({ match }) => {
+                console.log(match.params);
+                const idProd = this.allProds.map((item, idx) => { return item._id; }).indexOf(match.params.id);
+                return match.params !== null && idProd >= 0 ? <ViewMoreProd /> : <Redirect from="/catalogo/producto/:id" to="/catalogo/productos" />
+                }} />
+              <Route exact path="/catalogo/productos" sensitive><Products packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
+              <Route exact path="/salir" sensitive render={this.logout} />
+              <Redirect exact from="/catalogo/producto/:id" to="/catalogo/productos" />
+              <Redirect exact from="/catalogo/*" to="/catalogo/productos" />
           </Switch>
         </Router>
         <div id="notify"></div>
       </div>
+      </ContextProd.Provider>
     ) :  <Redirect to="/inicio" /> ;
+  }
+
+  componentDidMount() {
+    document.getElementsByTagName("body").item(0).classList = 'bckgr-main';
+    this.gettingProds();
+    this.render();
+  }
+
+  async gettingProds() {
+    const req = new Request, sid = this.controlSid.getSid(); let res;
+    try {
+      res = await req.getProducts(sid);
+      if (res.body.msgerr) throw error;
+      this.allProds = await res.body;
+      this.setState({ state: await res.body });
+    } catch {
+      if (res.error || res.serverError || res.body.msgerr) {
+          let errmsg = res.body.msgerr !== undefined ? res.body.msgerr : "Error en el servidor de datos!!";
+            ReactDOM.render(<Notifyer message={errmsg} msgtype={'bg-danger'} duration={1000} />,
+            document.getElementById("notify"));
+            setTimeout(() => {
+              ReactDOM.unmountComponentAtNode(document.getElementById("notify"));
+              this.controlSid.clearSid();
+              history.go("/inicio"); }, 1000);
+      }
+    }
+  }
+
+  importImgs(rsrc) {
+    let imgs = {};
+    rsrc.keys().map((item, idx) => { imgs[item.replace('./','')] = rsrc(item); });
+    return imgs;
+  }
+
+  bindImgWithSrc(objsrc) {
+    let imgSrc = [];
+    for (let key in objsrc) {
+      if (objsrc.hasOwnProperty(key)) {
+        imgSrc.push(key);
+      }      
+    }
+    return imgSrc;
   }
 
   logout(routeProps) {

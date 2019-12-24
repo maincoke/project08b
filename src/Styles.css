@@ -32,13 +32,35 @@ body {
   font-size: large !important;
 }
 
+.prods-container {
+  height: auto !important;
+  max-height: 85vh !important;
+  overflow-y: scroll !important;
+}
+
 .qtt-width {
   width: 50px !important;
 }
 
-.img-prod {
+.imgprod-container {
   width: auto;
-  height: auto;
-  max-width: 300px;
-  max-height: 200px;
+  height: 200px !important;
+}
+
+.img-prod {
+  height: auto !important;
+}
+
+@media (max-width: 992px ){
+  .imgprod-container {
+    width: auto;
+    height: 220px !important;
+  }
+}
+
+@media (max-width: 575px ){
+  .imgprod-container {
+    width: auto;
+    height: 300px !important;
+  }
 }

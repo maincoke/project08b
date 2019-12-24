@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Link, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { Container, Navbar, Nav, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { Request } from '../services/requestdata.js';
 
 
 class Topbar extends React.Component {
@@ -22,17 +21,17 @@ class Topbar extends React.Component {
           <Navbar.Collapse id="responsive-navbar" className="justify-content-end">
             <Nav navbar={true}>
               <OverlayTrigger placement="bottom-end" delay={{ show: 200, hide: 300}} overlay={this.showTooltip(0)}>
-                <NavLink className="mt-2 ml-2 mr-2" to={this.props.url + "/productos"}>
+                <NavLink className="mt-2 ml-2 mr-2" to="/catalogo/productos">
                   <i className="material-icons text-secondary">apps</i>
                 </NavLink>
               </OverlayTrigger>
               <OverlayTrigger placement="bottom-end" delay={{ show: 200, hide: 300}} overlay={this.showTooltip(1)}>
-                <NavLink className="mt-2 ml-2 mr-2" to={this.props.url + "/carrito"}>
+                <NavLink className="mt-2 ml-2 mr-2" to="/catalogo/carrito">
                   <ShopcarLink />
                 </NavLink>
               </OverlayTrigger>
               <OverlayTrigger placement="bottom-end" delay={{ show: 200, hide: 300}} overlay={this.showTooltip(2)}>
-                <NavLink className="mt-2 ml-2 mr-2" to={this.props.url + "/compras"}>
+                <NavLink className="mt-2 ml-2 mr-2" to="/catalogo/compras">
                   <i className="material-icons text-secondary">inbox</i>
                 </NavLink>
               </OverlayTrigger>
