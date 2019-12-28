@@ -1,5 +1,10 @@
+/**
+ * Configuracion de Servidor WEB con WebPack ** //
+ */
 const path = require("path");
 const webpack = require("webpack");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const HtmlWebPlugin = require("html-webpack-plugin");
 
 module.exports = {
     mode: "development",
@@ -7,7 +12,6 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, "dist/"),
         filename: "index.js",
-        publicPath: "/",
         publicPath: "/dist/"
     },
     resolve: { extensions: ["*", ".js", ".jsx "] },
@@ -23,12 +27,11 @@ module.exports = {
             "Access-Control-Allow-Methods": "*"
         },
         host: "0.0.0.0",
+        publicPath: "/dist",
         contentBase: path.join(__dirname, "public/"),
         watchContentBase: true,
-        historyApiFallback: true,
-        publicPath: "http://localhost:3200/dist/"
+        historyApiFallback: { index: "/dist/index.html" },
     },
-    plugins: [ new webpack.HotModuleReplacementPlugin() ],
     module: {
         rules: [
             {
@@ -51,12 +54,9 @@ module.exports = {
                 options: { limit: 10240, mimeType: [ "image/png", "image/jpg" ] } } ]
             }
         ]
-    }
+    },
+    plugins: [
+        new CleanWebpackPlugin({ cleanOnceBeforeBuildPatterns: [ "**/*", "!*.jpg", "!*.png", "!index.*" ] }),
+        new HtmlWebPlugin({ template: "./public/index.html" }),
+        new webpack.HotModuleReplacementPlugin() ]
 };
-
-/*
-            {
-                test: /\.(png|jpe?g|gif|svg)$/i,
-                use: [ "file-loader" ]
-            }
-*/

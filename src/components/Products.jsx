@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Link, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Switch, Route, Redirect } from 'react-router-dom';
 import { Container, Col, Row, Card, InputGroup, FormControl, Button } from 'react-bootstrap';
 import { ContextProd } from '../services/contextProd.js';
 import { Request } from '../services/requestdata.js';
@@ -99,7 +99,6 @@ class ViewMoreProd extends React.Component {
     this.controlSid = new controlSid;
     this.state = { id: '', name: '', price: 0, stock: 0, img: {} }
   }
-
   render() {
     return (
       <ContextProd.Consumer>{selProd => (

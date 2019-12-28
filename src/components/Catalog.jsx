@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Redirect, matchPath } from 'react-router-dom';
+import { Container, Col, Row, Button } from 'react-bootstrap';
 import { Request } from '../services/requestdata.js';
 import { ControlSid as controlSid } from '../services/managesid.js';
 import { ContextProd, selProd } from '../services/contextProd.js';
@@ -32,19 +33,12 @@ class Catalog extends React.Component {
         <Router>
           <Topbar />
           <Switch>
-              <Route exact path="/catalogo" sensitive><Redirect exact to="/catalogo/productos" /></Route>
-              <Route exact path="/catalogo/carrito" sensitive><Shopcar packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
-              <Route exact path="/catalogo/compras" sensitive><Purchases packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
-              {/*<Route exact path="/catalogo/producto/*"><Redirect to="/catalogo/productos" /></Route>*/}
-              <Route path="/catalogo/producto/:id" children={({ match }) => {
-                console.log(match.params);
-                const idProd = this.allProds.map((item, idx) => { return item._id; }).indexOf(match.params.id);
-                return match.params !== null && idProd >= 0 ? <ViewMoreProd /> : <Redirect from="/catalogo/producto/:id" to="/catalogo/productos" />
-                }} />
-              <Route exact path="/catalogo/productos" sensitive><Products packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
-              <Route exact path="/salir" sensitive render={this.logout} />
-              <Redirect exact from="/catalogo/producto/:id" to="/catalogo/productos" />
-              <Redirect exact from="/catalogo/*" to="/catalogo/productos" />
+            <Route exact path="/catalogo" sensitive><Products packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
+            <Route exact path="/catalogo/carrito" sensitive><Shopcar packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
+            <Route exact path="/catalogo/compras" sensitive><Purchases packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
+            <Route exact path="/catalogo/producto/:id?" sensitive><ViewMoreProd /></Route>
+            <Route exact path="/salir" sensitive render={this.logout} />
+            <Redirect to="/catalogo" />
           </Switch>
         </Router>
         <div id="notify"></div>
@@ -106,7 +100,6 @@ class Catalog extends React.Component {
       }).catch(error => { if (error) console.error(error); });
     }
   }
-
 }
 
 export default Catalog;

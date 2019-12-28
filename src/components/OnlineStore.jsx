@@ -27,7 +27,6 @@ class OnlineStore extends React.Component {
       </Router>
     );
   }
-
 }
 
 export default hot(module)(OnlineStore);

@@ -21,7 +21,7 @@ class Topbar extends React.Component {
           <Navbar.Collapse id="responsive-navbar" className="justify-content-end">
             <Nav navbar={true}>
               <OverlayTrigger placement="bottom-end" delay={{ show: 200, hide: 300}} overlay={this.showTooltip(0)}>
-                <NavLink className="mt-2 ml-2 mr-2" to="/catalogo/productos">
+                <NavLink className="mt-2 ml-2 mr-2" to="/catalogo">
                   <i className="material-icons text-secondary">apps</i>
                 </NavLink>
               </OverlayTrigger>
