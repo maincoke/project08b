@@ -1,6 +1,7 @@
 import React from 'react';
+import memoizeone from 'memoize-one';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Link, Switch, Route, Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { Container, Col, Row, Card, InputGroup, FormControl, Button } from 'react-bootstrap';
 import { ContextProd } from '../services/contextProd.js';
 import { Request } from '../services/requestdata.js';
@@ -10,16 +11,16 @@ import Notifyer from './Notifyer.jsx';
 class Products extends React.Component {
   constructor(props) {
     super(props);
-    this.controlSid = new controlSid;
-    this.state = { allproducts: this.props.packProds[3] };
+    this.state = { filteredprods: '' };
+    this.prodsFilter = memoizeone((prodsName, filterText) => prodsName.filter(item => item.includes(filterText)));
+    this.filterProducts = this.filterProducts.bind(this);
   }
 
   render() {
-    const src = this.props.packProds[0];
-    const srcImg = this.props.packProds[1];
-    const srcProd = this.props.packProds[2];
+    const src = this.props.packProds[0]; const srcImg = this.props.packProds[1]; const srcProd = this.props.packProds[2]; const allProds = this.props.packProds[3];
+    const filteredProds = this.prodsFilter(this.props.packProds[3].map((item) => item.name), this.state.filteredprods);
     return (
-      <Container className="rounded-lg mt-4 bg-light prods-container">
+      <Container className="rounded-lg mt-4 bg-light">
         <Row>
           <Col xs="12" sm="12" md="6" lg="8" xl="8">
             <h2 className="h2 text-dark mt-4">Catalogo de Productos</h2>
@@ -27,7 +28,7 @@ class Products extends React.Component {
           <Col xs="12" sm="12" md="6" lg="4" xl="4">
             <label htmlFor="filterSearch" className="h5 mt-4 text-dark">¿Que estas buscando?</label>
             <InputGroup>
-              <FormControl id="filterSearch" placeholder="Buscar producto" aria-describedby="prodSearch" />
+              <FormControl id="filterSearch" placeholder="Buscar producto" aria-describedby="prodSearch" value={this.state.filteredprods} onChange={this.filterProducts} />
               <InputGroup.Append>
                 <InputGroup.Text><i className="material-icons text-secondary">search</i></InputGroup.Text>
               </InputGroup.Append>
@@ -35,35 +36,36 @@ class Products extends React.Component {
           </Col>
         </Row>
         <hr></hr>
-        <Row>
-            { srcProd.map((item, idx) => {
-                if (srcImg.indexOf(item) >= 0) {
-                  return (<CardProd src={src[srcProd[idx]].default} name={this.props.packProds[3][idx].name}
-                              idprod={this.props.packProds[3][idx]._id} prc={this.props.packProds[3][idx].price}
-                              stk={this.props.packProds[3][idx].stock} prodkey={idx} key={idx} />)
+        <Row className="prods-container">
+          { srcProd.map((item, idx) =>
+              filteredProds.map((fitem) => {
+                if (allProds[idx].name === fitem && srcImg.indexOf(item) >= 0) {
+                  return (<CardProd src={src[srcProd[idx]].default} name={allProds[idx].name} idprod={allProds[idx]._id}
+                                    prc={allProds[idx].price} stk={allProds[idx].stock} prodkey={idx} key={idx} />)
                 }
-              }) }
+              })
+            )
+          }
         </Row>
       </Container>
     );
+  }
+
+  filterProducts(evt) {
+    evt.preventDefault();
+    this.setState({ filteredprods: evt.target.value });
   }
 }
 
 class CardProd extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {
-      prodId: this.props.idprod,
-      pname: this.props.name,
-      price: this.props.prc,
-      stock: this.props.stk,
-      image: this.props.src
-    }
+    this.state = { prodId: this.props.idprod, pname: this.props.name, price: this.props.prc, stock: this.props.stk, image: this.props.src }
   }
-
+  // Actualizar el estado de las unidades disponibles y agregar producto al carrito
   render() {
     return (
-      <Col xs="12" sm="6" md="6" lg="4" xl="3" className="m-0 p-0" id={this.props.prodkey}>
+      <Col xs="12" sm="6" md="6" lg="4" xl="3" className="m-0 p-0" key={this.props.prodkey}>
         <Card className="m-1 p-0" id={this.state.prodId}>
           <div className="imgprod-container">
             <Card.Img src={this.state.image} alt="aguacate" className="p-2 img-fluid mw-100 h-100" />
@@ -94,11 +96,6 @@ class CardProd extends React.Component {
 }
 
 class ViewMoreProd extends React.Component {
-  constructor(props) {
-    super(props)
-    this.controlSid = new controlSid;
-    this.state = { id: '', name: '', price: 0, stock: 0, img: {} }
-  }
   render() {
     return (
       <ContextProd.Consumer>{selProd => (

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Switch, Route, Redirect, matchPath } from 'react-router-dom';
-import { Container, Col, Row, Button } from 'react-bootstrap';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import { Request } from '../services/requestdata.js';
 import { ControlSid as controlSid } from '../services/managesid.js';
 import { ContextProd, selProd } from '../services/contextProd.js';
@@ -14,6 +13,7 @@ import Purchases from './Purchases.jsx';
 class Catalog extends React.Component {
   constructor(props) {
     super(props);
+    this._isMounted = false;
     this.controlSid = new controlSid;
     this.state = { products: new Array, prodSel: new selProd };
     this.allProds = new Array;
@@ -24,6 +24,7 @@ class Catalog extends React.Component {
   }
 
   render() {
+    document.getElementsByTagName("body").item(0).classList = 'bckgr-main';
     const src = this.importImgs(require.context('../assets/', false, /\.(png|jpe?g|svg)$/));
     const srcImg = this.bindImgWithSrc(src);
     const srcProd = this.allProds.map((item, idx) => { return (item.image).substr(10); });
@@ -33,9 +34,9 @@ class Catalog extends React.Component {
         <Router>
           <Topbar />
           <Switch>
-            <Route exact path="/catalogo" sensitive><Products packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
-            <Route exact path="/catalogo/carrito" sensitive><Shopcar packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
-            <Route exact path="/catalogo/compras" sensitive><Purchases packProds={[ src, srcImg, srcProd, this.allProds ]} /></Route>
+            <Route exact path="/catalogo" sensitive><Products packProds={[ src, srcImg, srcProd, this.state.products ]} /></Route>
+            <Route exact path="/catalogo/carrito" sensitive><Shopcar packProds={[ src, srcImg, srcProd, this.state.products ]} /></Route>
+            <Route exact path="/catalogo/compras" sensitive><Purchases packProds={[ src, srcImg, srcProd, this.state.products ]} /></Route>
             <Route exact path="/catalogo/producto/:id?" sensitive><ViewMoreProd /></Route>
             <Route exact path="/salir" sensitive render={this.logout} />
             <Redirect to="/catalogo" />
@@ -48,9 +49,12 @@ class Catalog extends React.Component {
   }
 
   componentDidMount() {
-    document.getElementsByTagName("body").item(0).classList = 'bckgr-main';
-    this.gettingProds();
-    this.render();
+    this._isMounted = true;
+    this._isMounted && this.gettingProds();
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   async gettingProds() {
@@ -59,12 +63,11 @@ class Catalog extends React.Component {
       res = await req.getProducts(sid);
       if (res.body.msgerr) throw error;
       this.allProds = await res.body;
-      this.setState({ state: await res.body });
+      this._isMounted && this.setState({ products: await res.body });
     } catch {
       if (res.error || res.serverError || res.body.msgerr) {
           let errmsg = res.body.msgerr !== undefined ? res.body.msgerr : "Error en el servidor de datos!!";
-            ReactDOM.render(<Notifyer message={errmsg} msgtype={'bg-danger'} duration={1000} />,
-            document.getElementById("notify"));
+            ReactDOM.render(<Notifyer message={errmsg} msgtype={'bg-danger'} duration={1000} />, document.getElementById("notify"));
             setTimeout(() => {
               ReactDOM.unmountComponentAtNode(document.getElementById("notify"));
               this.controlSid.clearSid();
@@ -96,7 +99,6 @@ class Catalog extends React.Component {
       req.logoutUser(sid).then(res => {
         if (res.error) throw res.error;
         routeProps.history.go('/inicio');
-        this.render();
       }).catch(error => { if (error) console.error(error); });
     }
   }

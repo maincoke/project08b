@@ -11,7 +11,6 @@ export class Request {
     this.signupUser = this.signupUser.bind(this);
     this.getProducts = this.getProducts.bind(this);
     this.getProdsShopcar = this.getProdsShopcar.bind(this);
-    this.getViewmoreProd = this.getViewmoreProd.bind(this);
     this.getPurchases = this.getPurchases.bind(this);
     this.addProdShopcar = this.addProdShopcar.bind(this);
     this.updProdShopcar = this.updProdShopcar.bind(this);
@@ -37,11 +36,6 @@ export class Request {
   getProducts(userSid) {
     const sid = JSON.stringify({ sid: userSid });
     return Req.post(this.urlData + '/catalog').type('application/json').responseType('json').send(sid);
-  }
-
-  getViewmoreProd(userSid, idProd) {
-    const sid = JSON.stringify({ sid: userSid });
-    return Req.post(this.urlData + '/product/' + idProd).type('application/json').responseType('json').send(sid);
   }
 
   getProdsShopcar(userSid) {
