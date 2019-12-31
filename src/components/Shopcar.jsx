@@ -13,7 +13,9 @@ class Shopcar extends React.Component {
     this.controlSid = new controlSid;
     this._isMounted = false;
     this.state = { shopcar: new Array }
+    this.styleItemlist = { color: 'secondary' }
     this.gettingProdsShopcar = this.gettingProdsShopcar.bind(this);
+    this.toggleStyleList = this.toggleStyleList.bind(this);
   }
 
   componentDidMount() {
@@ -41,9 +43,10 @@ class Shopcar extends React.Component {
             { srcProd.map((item, idx) =>
               this.state.shopcar.map((sitem, sidx) => { if (allProds[idx]._id === sitem.id && srcImg.indexOf(item) >= 0) {
                 totalCar += (sitem.price * sitem.quantt);
+                this.toggleStyleList();
                 return (
                   <ShopcarItem src={src[srcProd[idx]].default} name={allProds[idx].name} idprod={sitem.id} prc={sitem.price}
-                               qtt={sitem.quantt} prodkey={sidx}  key={idx} />)
+                               qtt={sitem.quantt} color={this.styleItemlist.color} prodkey={sidx}  key={idx} />)
                 }
               })
             )}
@@ -88,6 +91,8 @@ class Shopcar extends React.Component {
       }
     }
   }
+
+  toggleStyleList() { this.styleItemlist.color = this.styleItemlist.color === 'light' ? 'secondary' : 'light' }
 }
 
 class ShopcarItem extends React.Component {
@@ -97,7 +102,7 @@ class ShopcarItem extends React.Component {
 
   render() {
     return (
-      <ListGroup.Item key={this.props.prodkey} id={this.props.idprod}>
+      <ListGroup.Item key={this.props.prodkey} id={this.props.idprod} variant={this.props.color}>
         <Image src={this.props.src} rounded fluid thumbnail style={{ height: "80px" }} className="m-1 float-left" />
         <div className="float-left">
           <h3 className="h3 m-1 ml-2 text-capitalize">{this.props.name}</h3>
