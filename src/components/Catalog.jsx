@@ -47,7 +47,8 @@ class Catalog extends React.Component {
                         addprod2shopcar={this.manageProdsFromCar.bind(this)} initprods_shopcar={this.gettingProds_Shopcar.bind(this)} />
             </Route>
             <Route exact path="/catalogo/carrito" sensitive>
-              <Shopcar packProds={[ src, srcImg, srcProd, this.state.products ]} shopcar={this.state.shopcar} />
+              <Shopcar packProds={[ src, srcImg, srcProd, this.state.products ]} shopcar={this.state.shopcar}
+                       takeoutProdsFromCar={this.manageProdsFromCar.bind(this)} initprods_shopcar={this.gettingProds_Shopcar.bind(this)} />
             </Route>
             <Route exact path="/catalogo/compras" sensitive>
               <Purchases packProds={[ src, srcImg, srcProd, this.state.products ]} />
@@ -89,8 +90,8 @@ class Catalog extends React.Component {
     }
   }
 
-  manageProdsFromCar(addordel) {
-    let qtt = addordel ? this.state.scqtt + 1 : this.state.scqtt - 1;
+  manageProdsFromCar(addordel = null) {
+    let qtt = addordel !== null ? addordel ? this.state.scqtt + 1 : this.state.scqtt - 1 : 0;
     this.setState({ scqtt: qtt});
   }
 

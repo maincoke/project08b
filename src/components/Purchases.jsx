@@ -71,8 +71,9 @@ class PurchasesList extends React.Component {
   constructor(props) {
     super(props);
     this.state = { actKey: '' };
-    this.stylecard =  { bgcard: 'secondary', txcard: 'light' };
-    this.toggleStyleCard = this.toggleStyleCard.bind(this);
+    this.cardStyles = { dark: { bgcard: 'secondary', txcard: 'light' }, light: { bgcard: 'light', txcard: 'secondary' } }
+    this.stylecard =  {};
+    //this.toggleStyleCard = this.toggleStyleCard.bind(this);
     this.setActiveKey = this.setActiveKey.bind(this);
   }
 
@@ -82,21 +83,16 @@ class PurchasesList extends React.Component {
         <Col xs="12">
           <Accordion className="mb-2" activeKey={this.state.actKey} onSelect={(evt) => this.setActiveKey(evt)}>
           { this.props.shopcars.map((pitem, pidx) => {
-            this.toggleStyleCard();
+            this.stylecard = pidx % 2 === 0 ? this.cardStyles.light : this.cardStyles.dark;
             return (<PurchasesItem src={this.props.src} srcProd={this.props.srcProd} srcImg={this.props.srcImg} allprods={this.props.allprods} carorder={pitem.order}
-                              carprods={pitem.products} ordkey={pidx} key={pidx} bgcard={this.stylecard.bgcard} txcard={this.stylecard.txcard}
-                              icontoggle={'keyboard_arrow_right'} keyactive={this.state.actKey} />)
+                                   carprods={pitem.products} ordkey={pidx} key={pidx} cardstyle={this.stylecard} icontoggle={'keyboard_arrow_right'}
+                                   keyactive={this.state.actKey} />)
             })
           }
           </Accordion>
         </Col>
       </Row>
     );
-  }
-
-  toggleStyleCard() {
-    this.stylecard.bgcard = this.stylecard.bgcard === 'light' ? 'secondary' : 'light';
-    this.stylecard.txcard = this.stylecard.txcard === 'secondary' ? 'light' : 'secondary';
   }
 
   setActiveKey(evt) { this.setState({ actKey: evt }) }
@@ -116,7 +112,7 @@ class PurchasesItem extends React.Component {
       if (arr.length === idx + 1) { return total.toFixed(1) }
     });
     return (
-      <Card key={this.props.ordkey} id={this.props.carorder} bg={this.props.bgcard} text={this.props.txcard}>
+      <Card key={this.props.ordkey} id={this.props.carorder} bg={this.props.cardstyle.bgcard} text={this.props.cardstyle.txcard}>
         <Accordion.Toggle as={Card.Header} eventKey={this.props.ordkey.toString()}>
           <span className="float-left"><i className="material-icons h3 mb-0">{this.toggleIcon()}</i></span>
           <h3 className="h3 float-left mb-0 mt-1">Carrito N° {this.props.ordkey + 1}</h3>
