@@ -12,7 +12,7 @@ class Shopcar extends React.Component {
     super(props);
     this.controlSid = new controlSid;
     this._isMounted = false;
-    this.state = { shopcar: new Array }
+    this.state = { prodsShopcar: new Array }
     this.styleItemlist = { color: 'secondary' }
     this.gettingProdsShopcar = this.gettingProdsShopcar.bind(this);
     this.toggleStyleList = this.toggleStyleList.bind(this);
@@ -36,12 +36,12 @@ class Shopcar extends React.Component {
           </Col>
         </Row>
         <hr></hr>
-        { this.state.shopcar.length !== 0 ?
+        { this.state.prodsShopcar.length !== 0 ?
         (<Row className="prods-container">
           <Col xs="12" lg="8">
             <ListGroup className="mb-2">
             { srcProd.map((item, idx) =>
-              this.state.shopcar.map((sitem, sidx) => { if (allProds[idx]._id === sitem.id && srcImg.indexOf(item) >= 0) {
+              this.state.prodsShopcar.map((sitem, sidx) => { if (allProds[idx]._id === sitem.id && srcImg.indexOf(item) >= 0) {
                 totalCar += (sitem.price * sitem.quantt);
                 this.toggleStyleList();
                 return (
@@ -55,10 +55,10 @@ class Shopcar extends React.Component {
           <Col xs="12" lg="4">
             <Container className="mb-2 mt-2">
               <div className="align-content-start">
-                <h3 className="h3 mt-2">Total Carrito: $ {totalCar}</h3>
+                <h3 className="h3 mt-2">Total Carrito: $ {(totalCar).toFixed(1)}</h3>
                 <ButtonGroup>
                   <Button variant="outline-secondary" onClick={() => history.go("/catalogo")}>Cancelar</Button>
-                  <Button variant="outline-primary">Comprar</Button>
+                  <Button variant="outline-primary" onClick={this.buyShopcar.bind(this)}>Comprar</Button>
                 </ButtonGroup>
               </div>
             </Container>
@@ -74,12 +74,14 @@ class Shopcar extends React.Component {
     ) : <Redirect to="/inicio" />;
   }
 
+  toggleStyleList() { this.styleItemlist.color = this.styleItemlist.color === 'light' ? 'secondary' : 'light' }
+
   async gettingProdsShopcar(sid) {
     const req = new Request; let res;
     try {
       res = await req.getProdsShopcar(sid);
       if (res.body.msgerr) throw error;
-      this._isMounted && this.setState({ shopcar: res.body.shopcarProds });
+      this._isMounted && this.setState({ prodsShopcar: res.body.shopcarProds });
     } catch {
       if (res.error || res.serverError || res.body.msgerr) {
         let errmsg = res.body.msgerr !== undefined ? res.body.msgerr : "Error en el servidor de datos!!";
@@ -92,7 +94,9 @@ class Shopcar extends React.Component {
     }
   }
 
-  toggleStyleList() { this.styleItemlist.color = this.styleItemlist.color === 'light' ? 'secondary' : 'light' }
+  buyShopcar() {
+    alert("Está usted seguro de realizar la compra de los productos de este carriro?");
+  }
 }
 
 class ShopcarItem extends React.Component {
@@ -103,7 +107,7 @@ class ShopcarItem extends React.Component {
   render() {
     return (
       <ListGroup.Item key={this.props.prodkey} id={this.props.idprod} variant={this.props.color}>
-        <Image src={this.props.src} rounded fluid thumbnail style={{ height: "80px" }} className="m-1 float-left" />
+        <Image src={this.props.src} rounded fluid thumbnail style={{ height: "80px", width: "100px" }} className="m-1 float-left" />
         <div className="float-left">
           <h3 className="h3 m-1 ml-2 text-capitalize">{this.props.name}</h3>
           <p className="ml-2 mb-0">Precio: $ {this.props.prc}</p>
@@ -111,7 +115,7 @@ class ShopcarItem extends React.Component {
         </div>
         <div className="float-right">
           <Button variant="outline-danger" size="sm" className="float-right mb-4">Quitar</Button>
-          <p className="mr-2 mb-0">Subtotal: {this.props.qtt * this.props.prc}</p>
+          <p className="mr-2 mb-0">Subtotal: $ {(this.props.qtt * this.props.prc).toFixed(1)}</p>
         </div>
       </ListGroup.Item>
     );

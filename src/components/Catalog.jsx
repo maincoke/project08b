@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import { Request } from '../services/requestdata.js';
+import { ShopCar } from '../modeldata/Shopcar.js';
 import { ControlSid as controlSid } from '../services/managesid.js';
 import { ContextProd, selProd } from '../services/contextProd.js';
 import Notifyer from './Notifyer.jsx';
@@ -15,13 +16,20 @@ class Catalog extends React.Component {
     super(props);
     this._isMounted = false;
     this.controlSid = new controlSid;
-    this.state = { products: new Array, prodSel: new selProd };
+    this.state = { products: new Array, prodSel: new selProd, shopcar: new ShopCar, scqtt: 0 };
     this.allProds = new Array;
-    this.gettingProds = this.gettingProds.bind(this);
+    this.gettingProds_Shopcar = this.gettingProds_Shopcar.bind(this);
     this.importImgs = this.importImgs.bind(this);
     this.bindImgWithSrc = this.bindImgWithSrc.bind(this);
     this.logout = this.logout.bind(this);
   }
+
+  componentDidMount() {
+    this._isMounted = true;
+    this._isMounted && this.gettingProds_Shopcar();
+  }
+
+  componentWillUnmount() { this._isMounted = false; }
 
   render() {
     document.getElementsByTagName("body").item(0).classList = 'bckgr-main';
@@ -32,12 +40,21 @@ class Catalog extends React.Component {
       <ContextProd.Provider value={this.state.prodSel}>
       <div>
         <Router>
-          <Topbar />
+          <Topbar scqtt={this.state.scqtt} />
           <Switch>
-            <Route exact path="/catalogo" sensitive><Products packProds={[ src, srcImg, srcProd, this.state.products ]} /></Route>
-            <Route exact path="/catalogo/carrito" sensitive><Shopcar packProds={[ src, srcImg, srcProd, this.state.products ]} /></Route>
-            <Route exact path="/catalogo/compras" sensitive><Purchases packProds={[ src, srcImg, srcProd, this.state.products ]} /></Route>
-            <Route exact path="/catalogo/producto/:id?" sensitive><ViewMoreProd /></Route>
+            <Route exact path="/catalogo" sensitive>
+              <Products packProds={[ src, srcImg, srcProd, this.state.products ]} shopcar={this.state.shopcar}
+                        addprod2shopcar={this.manageProdsFromCar.bind(this)} initprods_shopcar={this.gettingProds_Shopcar.bind(this)} />
+            </Route>
+            <Route exact path="/catalogo/carrito" sensitive>
+              <Shopcar packProds={[ src, srcImg, srcProd, this.state.products ]} shopcar={this.state.shopcar} />
+            </Route>
+            <Route exact path="/catalogo/compras" sensitive>
+              <Purchases packProds={[ src, srcImg, srcProd, this.state.products ]} />
+            </Route>
+            <Route exact path="/catalogo/producto/:id?" sensitive>
+              <ViewMoreProd />
+            </Route>
             <Route exact path="/salir" sensitive render={this.logout} />
             <Redirect to="/catalogo" />
           </Switch>
@@ -48,32 +65,33 @@ class Catalog extends React.Component {
     ) :  <Redirect to="/inicio" /> ;
   }
 
-  componentDidMount() {
-    this._isMounted = true;
-    this._isMounted && this.gettingProds();
-  }
-
-  componentWillUnmount() {
-    this._isMounted = false;
-  }
-
-  async gettingProds() {
-    const req = new Request, sid = this.controlSid.getSid(); let res;
+  async gettingProds_Shopcar() {
+    const req = new Request, sid = this.controlSid.getSid(); let pdres; let scres;
     try {
-      res = await req.getProducts(sid);
-      if (res.body.msgerr) throw error;
-      this.allProds = await res.body;
-      this._isMounted && this.setState({ products: await res.body });
+      pdres = await req.getProducts(sid);
+      if (pdres.body.msgerr) throw error;
+      this.allProds = await pdres.body;
+      scres = await req.getProdsShopcar(sid);
+      if (scres.body.msgerr) throw error;
+      this._isMounted && this.setState({ products: pdres.body,
+                                         shopcar: { order: scres.body.order, paidod: scres.body.paidod, products: scres.body.shopcarProds },
+                                         scqtt: scres.body.shopcarProds.length });
     } catch {
-      if (res.error || res.serverError || res.body.msgerr) {
-          let errmsg = res.body.msgerr !== undefined ? res.body.msgerr : "Error en el servidor de datos!!";
-            ReactDOM.render(<Notifyer message={errmsg} msgtype={'bg-danger'} duration={1000} />, document.getElementById("notify"));
-            setTimeout(() => {
-              ReactDOM.unmountComponentAtNode(document.getElementById("notify"));
-              this.controlSid.clearSid();
-              history.go("/inicio"); }, 1000);
+      if (pdres.error || pdres.serverError || pdres.body.msgerr || scres.body.msgerr) {
+        let errmsg = pdres.body.msgerr !== undefined || scres.body.msgerr !== undefined ? pdres.body.msgerr !== undefined ?
+            pdres.body.msgerr : scres.body.msgerr : "Error en el servidor de datos!!";
+        ReactDOM.render(<Notifyer message={errmsg} msgtype={'bg-danger'} duration={1000} />, document.getElementById("notify"));
+        setTimeout(() => {
+          ReactDOM.unmountComponentAtNode(document.getElementById("notify"));
+          this.controlSid.clearSid();
+          history.go("/inicio"); }, 1000);
       }
     }
+  }
+
+  manageProdsFromCar(addordel) {
+    let qtt = addordel ? this.state.scqtt + 1 : this.state.scqtt - 1;
+    this.setState({ scqtt: qtt});
   }
 
   importImgs(rsrc) {

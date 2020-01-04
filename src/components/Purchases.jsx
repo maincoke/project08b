@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Link, Redirect } from 'react-router-dom';
-import { Container, Col, Row, Accordion, Card, ListGroup, Image } from 'react-bootstrap';
+import { Container, Col, Row, Accordion, AccordionProps, Card, ListGroup, Image } from 'react-bootstrap';
 import { Request } from '../services/requestdata.js';
 import { ControlSid as controlSid } from '../services/managesid.js';
 import Notifyer from './Notifyer.jsx';
@@ -54,11 +54,14 @@ class Purchases extends React.Component {
     } catch {
       if (res.error || res.serverError || res.body.msgerr) {
         let errmsg = res.body.msgerr !== undefined ? res.body.msgerr : "Error en el servidor de datos!!";
-        ReactDOM.render(<Notifyer message={errmsg} msgtype={'bg-danger'} duration={1000} />, document.getElementById("notify"));
+        let timeMsg = res.body.out ? 1000 : 1500;
+        ReactDOM.render(<Notifyer message={errmsg} msgtype={'bg-danger'} duration={timeMsg} />, document.getElementById("notify"));
         setTimeout(() => {
           ReactDOM.unmountComponentAtNode(document.getElementById("notify"));
-          this.controlSid.clearSid();
-          history.go("/inicio"); }, 1000);
+          if (res.body.out) {
+            this.controlSid.clearSid();
+            history.go("/inicio");
+          } }, timeMsg);
       }
     }
   }
@@ -67,19 +70,22 @@ class Purchases extends React.Component {
 class PurchasesList extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { actKey: '' };
     this.stylecard =  { bgcard: 'secondary', txcard: 'light' };
     this.toggleStyleCard = this.toggleStyleCard.bind(this);
+    this.setActiveKey = this.setActiveKey.bind(this);
   }
 
   render() {
     return (
       <Row className="prods-container">
         <Col xs="12">
-          <Accordion className="mb-2">
+          <Accordion className="mb-2" activeKey={this.state.actKey} onSelect={(evt) => this.setActiveKey(evt)}>
           { this.props.shopcars.map((pitem, pidx) => {
             this.toggleStyleCard();
             return (<PurchasesItem src={this.props.src} srcProd={this.props.srcProd} srcImg={this.props.srcImg} allprods={this.props.allprods} carorder={pitem.order}
-                              carprods={pitem.products} ordkey={pidx} key={pidx} bgcard={this.stylecard.bgcard} txcard={this.stylecard.txcard} />)
+                              carprods={pitem.products} ordkey={pidx} key={pidx} bgcard={this.stylecard.bgcard} txcard={this.stylecard.txcard}
+                              icontoggle={'keyboard_arrow_right'} keyactive={this.state.actKey} />)
             })
           }
           </Accordion>
@@ -92,23 +98,27 @@ class PurchasesList extends React.Component {
     this.stylecard.bgcard = this.stylecard.bgcard === 'light' ? 'secondary' : 'light';
     this.stylecard.txcard = this.stylecard.txcard === 'secondary' ? 'light' : 'secondary';
   }
+
+  setActiveKey(evt) { this.setState({ actKey: evt }) }
 }
 
 class PurchasesItem extends React.Component {
   constructor(props) {
     super(props);
     this.state = { carTotal: 0 };
+    this.toggleIcon = this.toggleIcon.bind(this);
   }
 
   render() {
     const src = this.props.src, srcProd = this.props.srcProd, srcImg = this.props.srcImg, allProds = this.props.allprods; let total = 0;
     const totalCar = this.props.carprods.map((item, idx, arr) => {
       total += item.price * item.quantt;
-      if (arr.length === idx + 1) { return total }
+      if (arr.length === idx + 1) { return total.toFixed(1) }
     });
     return (
       <Card key={this.props.ordkey} id={this.props.carorder} bg={this.props.bgcard} text={this.props.txcard}>
         <Accordion.Toggle as={Card.Header} eventKey={this.props.ordkey.toString()}>
+          <span className="float-left"><i className="material-icons h3 mb-0">{this.toggleIcon()}</i></span>
           <h3 className="h3 float-left mb-0 mt-1">Carrito N° {this.props.ordkey + 1}</h3>
           <h4 className="h4 float-right mb-0 mt-1">Total Carrito: $ {totalCar}</h4>
         </Accordion.Toggle>
@@ -117,6 +127,7 @@ class PurchasesItem extends React.Component {
             <ListGroup className="mb-1">
             { srcProd.map((item, idx) =>
                 this.props.carprods.map((sitem, sidx) => { if (allProds[idx]._id === sitem.id && srcImg.indexOf(item) >= 0) {
+                  const prodTotal = (sitem.price * sitem.quantt).toFixed(1);
                   return (
                   <ListGroup.Item className="p-2" key={idx}>
                     <Image src={src[srcProd[idx]].default} thumbnail fluid className="mt-1 float-left" style={{ height: "60px", width: "90px" }} />
@@ -124,7 +135,7 @@ class PurchasesItem extends React.Component {
                       <Col sm="12" lg="4" className="p-1"><span className="h4 ml-2 text-capitalize">{allProds[idx].name}</span></Col>
                       <Col sm="12" lg="2" className="p-1"><span className="ml-2 mb-0">Precio: $ {sitem.price}</span></Col>
                       <Col sm="12" lg="2" className="p-1"><span className="ml-2 mb-0">Cantidad: {sitem.quantt}</span></Col>
-                      <Col sm="12" lg="4" className="p-1"><span className="h5 ml-2 mb-0 float-right">Subtotal: $ {sitem.price * sitem.quantt}</span></Col>
+                      <Col sm="12" lg="4" className="p-1"><span className="h5 ml-2 mb-0 float-right">Subtotal: $ {prodTotal}</span></Col>
                     </Row>
                   </ListGroup.Item>
                   )}
@@ -136,6 +147,10 @@ class PurchasesItem extends React.Component {
         </Accordion.Collapse>
       </Card>
     );
+  }
+
+  toggleIcon() {
+    return this.props.keyactive === this.props.ordkey.toString() ? 'keyboard_arrow_down' : 'keyboard_arrow_right'
   }
 }
 

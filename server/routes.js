@@ -140,7 +140,7 @@ Router.post('/newprod', function(req, res) {
       }
     });
   }).catch(error => {
-    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!' });
+    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!', out: true });
   });
 });
 
@@ -149,7 +149,7 @@ Router.post('/updateprod/:id', function(req, res) {
   this.getSession(req.body.sid).then(sessusr => {
     const setPrc = "shopcar.$.products." + req.body.idx.toString() + ".price";
     const setQtt = "shopcar.$.products." + req.body.idx.toString() + ".quantt";
-    User.updateOne({ emailusr: sessusr.username, "shopcar.paidod": false, "shopcar.products.id": objectId(req.params.id) },
+    User.updateOne({ emailusr: sessusr.username, "shopcar.order": req.body.order, "shopcar.paidod": false, "shopcar.products.id": objectId(req.params.id) },
     { $set: { [setPrc]: req.body.price, [setQtt]: req.body.quantt } }, (error, doc) => {
       if (!error) {
         updStockProd(req.params.id, req.body.newstk);
@@ -159,7 +159,7 @@ Router.post('/updateprod/:id', function(req, res) {
       }
     });
   }).catch(error => {
-    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!' });
+    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!', out: true });
   });
 });
 
@@ -176,7 +176,7 @@ Router.post('/deleteprod/:id', function(req, res) {
       }
     });
   }).catch(error => {
-    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!' });
+    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!', out: true });
   });
 });
 
@@ -196,7 +196,7 @@ Router.post('/shopcar', function(req, res) {
       res.send({ msgerr: 'Hubo un error en obtener los productos del carrito!!' });
     });
   }).catch(error => {
-    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!' });
+    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!', out: true });
   });
 });
 
@@ -213,7 +213,7 @@ Router.post('/purchase/:id', function(req, res) {
       }
     });
   }).catch(error => {
-    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!' });
+    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!', out: true });
   });
 });
 
@@ -230,7 +230,7 @@ Router.post('/product/:id', function(req, res) {
       console.error('===>>> Error en la obtención del producto:  \n' + error);
     });
   }).catch(error => {
-    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!' });
+    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!', out: true });
   });
 });
 
@@ -246,7 +246,7 @@ Router.post('/catalog', function(req, res) {
       console.error('===>>> Error en la obtención de productos:  \n' + error);
     });
   }).catch(error => {
-    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!' });
+    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!', out: true });
   });
 });
 
@@ -269,7 +269,7 @@ Router.post('/shopping', function(req, res) {
       res.send({ msgerr: 'No se han realizado compras de carrito!!' });
     });
   }).catch(error => {
-    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!' });
+    res.send({ msgerr: 'Cuenta de usuario no existe ó expiró la sessión!!', out: true });
   });
 });
 

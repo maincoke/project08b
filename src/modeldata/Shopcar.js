@@ -1,5 +1,5 @@
 // Clase Global del Carrito de Compras de la Tienda Online */
-export class Shopcar {
+export class ShopCar {
   constructor() {
     this.order = new String;
     this.paidod = false;

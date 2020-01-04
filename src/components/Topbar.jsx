@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Container, Navbar, Nav, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Container, Navbar, Nav, OverlayTrigger, Tooltip, Badge } from 'react-bootstrap';
 
 
 class Topbar extends React.Component {
@@ -9,8 +8,6 @@ class Topbar extends React.Component {
     super(props);
     this.showTooltip = this.showTooltip.bind(this);
   }
-
-  componentDidMount() { }
 
   render() {
     return (
@@ -27,7 +24,11 @@ class Topbar extends React.Component {
               </OverlayTrigger>
               <OverlayTrigger placement="bottom-end" delay={{ show: 200, hide: 300}} overlay={this.showTooltip(1)}>
                 <NavLink className="mt-2 ml-2 mr-2" to="/catalogo/carrito">
-                  <ShopcarLink />
+                  <i className="material-icons text-secondary">shopping_cart</i>
+                  <div className="float-right">{ this.props.scqtt !== 0 ?
+                    <Badge className="float-left" variant="danger" pill>{this.props.scqtt}</Badge> :
+                    <span></span>
+                  }</div>
                 </NavLink>
               </OverlayTrigger>
               <OverlayTrigger placement="bottom-end" delay={{ show: 200, hide: 300}} overlay={this.showTooltip(2)}>
@@ -56,19 +57,6 @@ class Topbar extends React.Component {
       default: tooltipMsg = "Salir"; idTooltip = "logout"; break;
     }
     return (<Tooltip id={idTooltip}>{tooltipMsg}</Tooltip>);
-  }
-
-}
-
-class ShopcarLink extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <i className="material-icons text-secondary">shopping_cart</i>
-    );
   }
 }
 
