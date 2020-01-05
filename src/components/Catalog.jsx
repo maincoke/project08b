@@ -51,7 +51,7 @@ class Catalog extends React.Component {
                        takeoutProdsFromCar={this.manageProdsFromCar.bind(this)} initprods_shopcar={this.gettingProds_Shopcar.bind(this)} />
             </Route>
             <Route exact path="/catalogo/compras" sensitive>
-              <Purchases packProds={[ src, srcImg, srcProd, this.state.products ]} />
+              <Purchases packProds={[ src, srcImg, srcProd, this.state.products ]} initprods_shopcar={this.gettingProds_Shopcar.bind(this)} />
             </Route>
             <Route exact path="/catalogo/producto/:id?" sensitive>
               <ViewMoreProd />
@@ -70,15 +70,15 @@ class Catalog extends React.Component {
     const req = new Request, sid = this.controlSid.getSid(); let pdres; let scres;
     try {
       pdres = await req.getProducts(sid);
-      if (pdres.body.msgerr) throw error;
+      if (pdres.body.msgerr || pdres.error) throw error;
       this.allProds = await pdres.body;
       scres = await req.getProdsShopcar(sid);
-      if (scres.body.msgerr) throw error;
+      if (scres.body.msgerr || scres.error) throw error;
       this._isMounted && this.setState({ products: pdres.body,
                                          shopcar: { order: scres.body.order, paidod: scres.body.paidod, products: scres.body.shopcarProds },
                                          scqtt: scres.body.shopcarProds.length });
     } catch {
-      if (pdres.error || pdres.serverError || pdres.body.msgerr || scres.body.msgerr) {
+      if (pdres.error || pdres.serverError || pdres.body.msgerr || scres.body.msgerr || scres.error) {
         let errmsg = pdres.body.msgerr !== undefined || scres.body.msgerr !== undefined ? pdres.body.msgerr !== undefined ?
             pdres.body.msgerr : scres.body.msgerr : "Error en el servidor de datos!!";
         ReactDOM.render(<Notifyer message={errmsg} msgtype={'bg-danger'} duration={1000} />, document.getElementById("notify"));
@@ -116,7 +116,7 @@ class Catalog extends React.Component {
       const req = new Request, sid = this.controlSid.getSid();
       this.controlSid.clearSid();
       req.logoutUser(sid).then(res => {
-        if (res.error) throw res.error;
+        if (res.error) throw error;
         routeProps.history.go('/inicio');
       }).catch(error => { if (error) console.error(error); });
     }

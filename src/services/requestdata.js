@@ -64,7 +64,7 @@ export class Request {
   }
 
   buyACar(userSid, ordCar) {
-    const sid = JSON.stringify({ sid: userSid });
-    return Req.post(this.urlData + '/purchase/' + ordCar).type('application/json').responseType('json').send(sid);
+    const carData = JSON.stringify({ sid: userSid, order: ordCar });
+    return Req.post(this.urlData + '/purchase').type('application/json').responseType('json').send(carData);
   }
 }

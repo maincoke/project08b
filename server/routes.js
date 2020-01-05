@@ -144,12 +144,12 @@ Router.post('/newprod', function(req, res) {
   });
 });
 
-// *** Actualización de cantidad y precio de un producto en el Carrito del Usuario en la Tienda Online *** //
+// *** Actualización de cantidad y precio de un producto en el Carrito del Usuario en la Tienda Online *** // ---- , "shopcar.products.id": objectId(req.params.id)
 Router.post('/updateprod/:id', function(req, res) {
   this.getSession(req.body.sid).then(sessusr => {
     const setPrc = "shopcar.$.products." + req.body.idx.toString() + ".price";
     const setQtt = "shopcar.$.products." + req.body.idx.toString() + ".quantt";
-    User.updateOne({ emailusr: sessusr.username, "shopcar.order": req.body.order, "shopcar.paidod": false, "shopcar.products.id": objectId(req.params.id) },
+    User.updateOne({ emailusr: sessusr.username, "shopcar.order": req.body.order, "shopcar.paidod": false },
     { $set: { [setPrc]: req.body.price, [setQtt]: req.body.quantt } }, (error, doc) => {
       if (!error) {
         updStockProd(req.params.id, req.body.newstk);
@@ -166,7 +166,7 @@ Router.post('/updateprod/:id', function(req, res) {
 // *** Eliminación de un producto en el Carrito del Usuario en la Tienda Online *** //
 Router.post('/deleteprod/:id', function(req, res) {
   this.getSession(req.body.sid).then(sessusr => {
-    User.updateOne({ emailusr: sessusr.username, "shopcar.paidod": false, "shopcar.products.id": objectId(req.params.id) },
+    User.updateOne({ emailusr: sessusr.username, "shopcar.order": req.body.order, "shopcar.paidod": false },
     { "$pull": { "shopcar.$.products": { id: objectId(req.params.id) }}}, (error, doc) => {
       if (!error) {
          updStockProd(req.params.id, req.body.newstk);
@@ -201,13 +201,13 @@ Router.post('/shopcar', function(req, res) {
 });
 
 // *** Actualización de Compra y Pago del Carrito de Usuario en la Tienda Online *** //
-Router.post('/purchase/:id', function(req, res) {
+Router.post('/purchase', function(req, res) {
   this.getSession(req.body.sid).then(sessusr => {
-    User.updateOne({ emailusr: sessusr.username, 'shopcar.paidod': false, 'shopcar.order': req.params.id },
+    User.updateOne({ emailusr: sessusr.username, 'shopcar.paidod': false, 'shopcar.order': req.body.order },
     { $set: { 'shopcar.$.paidod': true }}, (error, doc) => {
       if (!error) {
-        res.send({ msgscs: 'Compra realizada y Carrito actualizado con éxito!!'});
         User.updateOne({ emailusr: sessusr.username }, { '$push': { shopcar: { order: newuuid1(), paidod: false, products: [] }}}).exec();
+        res.send({ msgscs: 'Compra realizada y Carrito actualizado con éxito!!'});
       } else {
         res.send({ msgerr: 'Hubo un error al comprar los productos del Carrito!!'});
       }

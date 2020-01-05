@@ -61,7 +61,6 @@ class Products extends React.Component {
     const prodIdx = this.props.shopcar.products.findIndex((prod) => prod.id === prodId) !== undefined ?
                     this.props.shopcar.products.findIndex((prod) => prod.id === prodId) : -1;
     const qttpd = this.props.shopcar.products[prodIdx] !== undefined ? this.props.shopcar.products[prodIdx].quantt : 0;
-    console.log(this.props.shopcar.products[prodIdx]); console.log(qttpd);
     return { idxprod: prodIdx, qttprod: qttpd };
   }
 }
@@ -74,7 +73,6 @@ class CardProd extends React.Component {
   }
 
   render() {
-
     return (
       <Col xs="12" sm="6" md="6" lg="4" xl="3" className="m-0 p-0" key={this.props.prodkey}>
         <Card className="m-1 p-0" id={this.state.prodId}>
@@ -106,7 +104,6 @@ class CardProd extends React.Component {
   }
 
   async addProd2Car() {
-    console.log("Agregado el producto..!! " + parseInt(this.state.qtt));
     const pdqtt = parseInt(this.state.qtt);
     const newstk = this.state.stock - pdqtt;
     this.setState({ qtt: 1, stock: newstk });
@@ -116,11 +113,10 @@ class CardProd extends React.Component {
     try {
       if (prodChk.idxprod === -1) {
         res = await req.addProdShopcar(sid, this.props.carorder, newprod , newstk);
-        if (res.body.msgerr) throw error;
+        if (res.body.msgerr || res.error) throw error;
         this.props.addingprod(true);
       } else {
         const newqtt = pdqtt + prodChk.qttprod;
-        console.log(newqtt);
         res = await req.updProdShopcar(sid, this.props.carorder, prodChk.idxprod, this.state.prodId, this.state.price, newqtt, newstk);
         if (res.body.msgerr) throw error;
       }

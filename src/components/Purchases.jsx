@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { Container, Col, Row, Accordion, AccordionProps, Card, ListGroup, Image } from 'react-bootstrap';
 import { Request } from '../services/requestdata.js';
 import { ControlSid as controlSid } from '../services/managesid.js';
@@ -49,7 +49,7 @@ class Purchases extends React.Component {
     const req = new Request; let res;
     try {
       res = await req.getPurchases(sid);
-      if (res.body.msgerr) throw error;
+      if (res.body.msgerr || res.error) throw error;
       this._isMounted && this.setState({ purchases: res.body.shopCars });
     } catch {
       if (res.error || res.serverError || res.body.msgerr) {
@@ -73,7 +73,6 @@ class PurchasesList extends React.Component {
     this.state = { actKey: '' };
     this.cardStyles = { dark: { bgcard: 'secondary', txcard: 'light' }, light: { bgcard: 'light', txcard: 'secondary' } }
     this.stylecard =  {};
-    //this.toggleStyleCard = this.toggleStyleCard.bind(this);
     this.setActiveKey = this.setActiveKey.bind(this);
   }
 

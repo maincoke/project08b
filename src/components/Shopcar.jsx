@@ -83,7 +83,7 @@ class Shopcar extends React.Component {
     const req = new Request; let res;
     try {
       res = await req.getProdsShopcar(sid);
-      if (res.body.msgerr) throw error;
+      if (res.body.msgerr || res.error) throw error;
       this._isMounted && this.setState({ prodsShopcar: res.body.shopcarProds, carorder: res.body.order });
     } catch {
       if (res.error || res.serverError || res.body.msgerr) {
@@ -104,8 +104,9 @@ class Shopcar extends React.Component {
     const newstk = this.props.packProds[3][idxProd].stock + pdqtt;
     const req = new Request, sid = this.controlSid.getSid(); let res;
     try {
+      console.log(this.state.carorder);
       res = await req.delProdShopcar(sid, this.state.carorder, elemid, newstk);
-      if (res.body.msgerr) throw error;
+      if (res.body.msgerr || res.error) throw error;
       ReactDOM.render(<Notifyer message={res.body.msgscs} msgtype={'bg-warning'} duration={1000} />, document.getElementById("notify"));
       setTimeout(() => { ReactDOM.unmountComponentAtNode(document.getElementById("notify"));}, 1000);
     } catch {
@@ -174,7 +175,7 @@ class PurchaseShopCar extends React.Component {
     const req = new Request, sid = this.controlSid.getSid(); let res;
     try {
       res = await req.buyACar(sid, this.props.ordcar);
-      if (res.body.msgerr) throw error;
+      if (res.body.msgerr || res.error) throw error;
       this.props.emptingCar();
       this.props.refreshCar(sid);
       ReactDOM.render(<Notifyer message={res.body.msgscs} msgtype={'bg-success'} duration={1500} />, document.getElementById("notify"));
