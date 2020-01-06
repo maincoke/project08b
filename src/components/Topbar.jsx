@@ -12,7 +12,7 @@ class Topbar extends React.Component {
   render() {
     return (
       <Container className="p-0">
-        <Navbar collapseOnSelect expand="sm" bg="light" variant="light" className="rounded-lg">
+        <Navbar collapseOnSelect sticky="top" expand="sm" bg="light" variant="light" className="rounded-lg">
           <Navbar.Brand><h4 className="mb-0 font-weight-bolder text-secondary" >La Bodega</h4></Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar" />
           <Navbar.Collapse id="responsive-navbar" className="justify-content-end">

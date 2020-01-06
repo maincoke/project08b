@@ -14,12 +14,12 @@ const path = require('path'),
       bodyParser = require('body-parser');
 
 /* Configuración de instancias y variables del Servidor */
-const PORT = 3000;
+const PORT = 3300;
 const shop = express();
 const urldb = 'mongodb://localhost/onlinecellar';
 
 /* Conexión con la BD MongoDB con el framework Mongoose */
-mongoose.connect(urldb, { useNewUrlParser: true });
+mongoose.connect(urldb, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Hubo un error en la conexión con el MongoDB:\n'));
 db.once('open', function() {
@@ -37,7 +37,7 @@ const userSession = session({
   resave: false,
   rolling: true,
   saveUninitialized: false,
-  cookie: { maxAge: 900000 }, // ***** Recordar colocal 1800000 para los 30 min //
+  cookie: { maxAge: 1800000 },
   store: new mongoSession({ mongooseConnection: db })
 });
 shop.use(userSession);

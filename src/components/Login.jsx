@@ -114,8 +114,8 @@ class Login extends React.Component {
     userCreds.pwordusr = values.userpass;
     fmkbag.resetForm({});
     req.loginCheck(userCreds).then(res => {
-      if (res.error || !res.body.access) throw res.error
       resp = res.body;
+      if (res.error || !res.body.access) throw res.error
       this.controlSid.buildSid(resp.sid);
     }).catch(error => { if (error) console.error(error);
     }).finally(() => {

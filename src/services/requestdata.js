@@ -5,7 +5,7 @@ import * as Req from 'superagent';
 
 export class Request {
   constructor() {
-    this.urlData = 'http://' + window.location.hostname + ':3000/shopping';
+    this.urlData = 'http://' + window.location.hostname + ':3300/shopping';
     this.loginCheck = this.loginCheck.bind(this);
     this.logoutUser = this.logoutUser.bind(this);
     this.signupUser = this.signupUser.bind(this);
