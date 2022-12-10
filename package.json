@@ -32,7 +32,7 @@
         "bootstrap": "^4.4.1",
         "connect-mongo": "^3.2.0",
         "cors": "^2.8.5",
-        "express": "^4.17.1",
+        "express": "^4.17.3",
         "express-session": "^1.17.0",
         "history": "^4.10.1",
         "memoize-one": "^5.1.1",
